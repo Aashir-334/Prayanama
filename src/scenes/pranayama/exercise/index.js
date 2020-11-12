@@ -284,8 +284,10 @@ export default class ExerciseScreen extends Component {
     this.setState(
       {
         pause: !this.state.pause,
-      },
-      console.log('-----', this.state.pause),
+      },()=>{
+        // if(!this.state.pause)
+        // this.excerciseComp.pauseEverything();
+      }
     );
   };
 
@@ -357,12 +359,15 @@ export default class ExerciseScreen extends Component {
     //   : this.state.songName == 'softrelaxing.mp3'
     //   ? (bgChanger = require('../../../../image/background20.gif'))
     //   : (bgChanger = require('../../../../image/background14.gif'));
+    //this.state.pause && !this.state.excerciseComplete ? ()=>{
+     // this.setState({pause:!this.state.pause})
+    //} :
     // console.warn("ok")
     return (
       <View style={style.mainContainer}>
         <StatusBar hidden={true} />
         <TouchableOpacity
-          onPress={this.state.pause && !this.state.excerciseComplete ? null : this.handlePause}
+          onPress={this.handlePause}
           activeOpacity={1}
           style={style.mainLenear}
           activeOpacity={0.7}>
@@ -404,6 +409,7 @@ export default class ExerciseScreen extends Component {
 
               <FreeExercise
                 {...this.prop}
+                refer={(component:Component)=>this.excerciseComp=component}
                 bgSong={this.handleSong}
                 second={this.handleSeconds}
                 focus={this.focus}

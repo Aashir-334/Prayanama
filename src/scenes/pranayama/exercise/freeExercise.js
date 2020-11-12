@@ -148,6 +148,7 @@ class freeExercise extends Component {
     );
   }
   async componentDidMount() {
+    this.props.refer(this);
     this.setState(
       {
         songs: store.getState().songs.songs,
@@ -230,7 +231,6 @@ class freeExercise extends Component {
       clearInterval(this.intervalExhale);
       clearInterval(this.exhale);
       clearTimeout(this.totalTime);
-      clearTimeout(this.inhale);
       clearTimeout(this.exhale);
       clearTimeout(this.exhale);
       clearInterval(this.guide_);
@@ -238,10 +238,7 @@ class freeExercise extends Component {
       clearTimeout(this.exhaleTime);
 
       // this.setState({pause: !this.state.pause});
-      this.song.stop(() => {
-       
-      }
-      );
+      this.song.stop();
       ToastAndroid.show(
         store.getState().language.thanks,
         ToastAndroid.BOTTOM,
@@ -249,8 +246,8 @@ class freeExercise extends Component {
       this.props.navigation.goBack();
     }
     else {
-      
-    //  let { values } = this.state;
+
+      //  let { values } = this.state;
 
       // new Sound(
       //   `${values}`,
@@ -263,27 +260,44 @@ class freeExercise extends Component {
       if (this.props.pauseValue != true && this.state.pause != true) {
         this.onHandleAction();
       }
-      if (!this.state.pause) {
-        this.passPause();
-        this.setState({ pause: !this.state.pause });
-        const seconds = this.state.selectedSeconds;
-        const { exerciseArray, index } = this.state;
+      this.StartExcercising()
 
-        // const exercise = exerciseArray[0];
-        // const exerciseArray = this.props.selectedExercise.exerciseText.exercise;
-        this.setState({
-          exerciseArray: this.props.selectedExercise.exerciseText.exercise,
-          //guideArray:this.props.selectedExercise.exerciseText.guides
-        });
-        this.song.play(success => {
-          if (!success) {
-          }
-        });
+    }
 
-        if (this.state.isGuide && !this.state.isShowingGuide) {
-          // Tts.stop(this.guidess_ )
-          // clearInterval(this.guidess_)
-          this.exhale = setInterval(() => {
+  };
+
+  StartExcercising=()=>{
+    if (!this.state.pause) {
+      this.passPause();
+      this.setState({ pause: !this.state.pause });
+      const seconds = this.state.selectedSeconds;
+      const { exerciseArray, index } = this.state;
+
+      // const exercise = exerciseArray[0];
+      // const exerciseArray = this.props.selectedExercise.exerciseText.exercise;
+      this.setState({
+        exerciseArray: this.props.selectedExercise.exerciseText.exercise,
+        //guideArray:this.props.selectedExercise.exerciseText.guides
+      });
+      this.song.play(success => {
+        if (!success) {
+        }
+      });
+
+      if (this.state.isGuide && !this.state.isShowingGuide) {
+        // Tts.stop(this.guidess_ )
+        // clearInterval(this.guidess_)
+        this.StartExcercise = setTimeout(() => {
+          this.animateView();
+          this.setState({ guideStart: true })
+          Tts.speak(this.state.exerciseArray[this.index], {
+            androidParams: {
+              KEY_PARAM_PAN: 0,
+              KEY_PARAM_VOLUME: 1,
+              KEY_PARAM_STREAM: 'STREAM_MUSIC',
+            },
+          });
+          this.Excercising = setInterval(() => {
             this.animateView();
             this.setState({ guideStart: true })
             Tts.speak(this.state.exerciseArray[this.index], {
@@ -302,29 +316,30 @@ class freeExercise extends Component {
             //     //this.setState({ index: this.index + 1 });
             //   }
             // });
-          }, 1000 * seconds);
-        }
-        if (!this.state.isGuide && !this.state.isShowingGuide) {
-          this.setState({ isShowingGuide: true })
-          this.guidess_ = setInterval(() => {
-            this.animateView();
-            Tts.speak(
-              this.props.selectedExercise.exerciseText.guides[this.guideIndex],
-              {
-                androidParams: {
-                  KEY_PARAM_PAN: 0,
-                  KEY_PARAM_VOLUME: 1,
-                  KEY_PARAM_STREAM: 'STREAM_MUSIC',
-                },
-              },
-            );
-          }, 8000);
-        }
-      }
+          }, 1000 * (seconds + 1));
+        }, 2000)
 
+      }
+      if (!this.state.isGuide && !this.state.isShowingGuide) {
+        this.setState({ isShowingGuide: true })
+      //  console.warn(this.state.isShowingGuide)
+        this.guidess_ = setInterval(() => {
+          this.animateView();
+          Tts.speak(
+            this.props.selectedExercise.exerciseText.guides[this.guideIndex],
+            {
+              androidParams: {
+                KEY_PARAM_PAN: 0,
+                KEY_PARAM_VOLUME: 1,
+                KEY_PARAM_STREAM: 'STREAM_MUSIC',
+              },
+            },
+          );
+        }, 1000 * (seconds + 1));
+      }
     }
 
-  };
+  }
 
   // rn Picker Value Selection Funtion
   valueChange(value, index) {
@@ -342,8 +357,8 @@ class freeExercise extends Component {
     //   }
     // }
 
-    this.setState({ values: selected_song, songInfo }, () => { 
-      this.props.exerciseBgPath(selected_image) 
+    this.setState({ values: selected_song, songInfo }, () => {
+      this.props.exerciseBgPath(selected_image)
     });
     this.props.Loading(true)
     this.song = new Sound(
@@ -405,12 +420,32 @@ class freeExercise extends Component {
     ).start();
   }
 
-  EndExcercise=()=>{
-    this.timePause = setTimeout(() => {
-      if (this.state.pause == true) {
-      this.onPauseSound(true);
-    }
-    }, (this.state.selectedMinutes * 60000)+1000);
+  EndExcercise = () => {
+    this.EndingExcercise = setTimeout(() => {
+        this.onPauseSound(true);
+    }, (this.state.selectedMinutes * 60000) + 1000);
+  }
+
+  playEverything = () => {
+    // if (this.state.pause) {
+     
+    // }
+    // else {
+      this.StartExcercising();
+      this.props.handleRunning(true);
+      this.EndExcercise()
+      this.setState({pause:true})
+    // }
+  }
+
+  pauseEverything=() => {
+      this.song.pause();
+      this.props.handleRunning(false);
+      clearTimeout(this.StartExcercise);
+      clearInterval(this.Excercising);
+      clearInterval(this.guidess_);
+      clearTimeout(this.EndingExcercise);
+      this.setState({pause:false,isShowingGuide:this.guideIndex>0?false:true})
   }
 
   // arrayBufferToBase64(buffer) {
@@ -451,9 +486,7 @@ class freeExercise extends Component {
             {!this.state.pause ?
               <TouchableOpacity
                 onPress={() => {
-                  this.onPauseSound(false); 
-                  this.props.handleRunning(true);
-                  this.EndExcercise()
+                  this.playEverything();
                 }}
                 activeOpacity={0.9}
                 style={style.playBotton}>
