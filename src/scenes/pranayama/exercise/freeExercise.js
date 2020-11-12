@@ -247,23 +247,22 @@ class freeExercise extends Component {
         ToastAndroid.BOTTOM,
       )
       this.props.navigation.goBack();
-      return;
     }
     else {
+      
+    //  let { values } = this.state;
+
+      // new Sound(
+      //   `${values}`,
+      //   Sound.MAIN_BUNDLE,
+      //   error => {
+      //     if (error) {
+      //     }
+      //   },
+      // );
       if (this.props.pauseValue != true && this.state.pause != true) {
         this.onHandleAction();
       }
-      let { values } = this.state;
-
-      new Sound(
-        `${values}`,
-        Sound.MAIN_BUNDLE,
-        error => {
-          if (error) {
-          }
-        },
-      );
-
       if (!this.state.pause) {
         this.passPause();
         this.setState({ pause: !this.state.pause });
@@ -665,10 +664,12 @@ class freeExercise extends Component {
 const mapStateToProps = state => ({
   audio: state.subExercise.audio,
 });
-// export default freeExercise;
+
+const mapDispatchToProps = { user_last_exer, sub_exer };
+
 export default connect(
   mapStateToProps,
-  { user_last_exer, sub_exer },
+  mapDispatchToProps
 )(withNavigation(freeExercise));
 
 
