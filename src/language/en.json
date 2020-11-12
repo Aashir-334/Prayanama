@@ -1,0 +1,11 @@
+{
+    "Login": {
+    "login": "Login",
+    "or": "OR",
+    "signUp": "SignUp",
+    "email":"Email",
+    "password":"Password",
+    "back":"Back"
+    }
+    
+}
